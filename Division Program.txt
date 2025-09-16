@@ -1,0 +1,45 @@
+
+
+
+module xor1(a,b,c);
+  input a,b;
+  output c;
+  assign c=a^b;
+endmodule
+module FA(d,f,n,c,sum,carry);
+  input d,f,n,c;
+  output sum,carry;
+  wire x1;
+  xor1 xor2(d,f,x1);
+  assign sum=x1^n^c;
+  assign carry=(x1&n)|(n&c)|(c&x1);
+endmodule
+
+module division1(d,n,r,q);
+  input [3:0]d;
+  input [5:0]n;
+  output [2:0]q;
+  output [3:0]r;
+  wire [8:0]sum;
+  wire [11:0]c;
+  wire [1:0]dump;
+  
+  FA FA1(d[0],1'b1,n[2],1'b1,sum[0],c[0]);
+  FA FA2(d[1],1'b1,n[3],c[0],sum[1],c[1]);
+  FA FA3(d[2],1'b1,n[4],c[1],sum[2],c[2]);
+  FA FA4(d[3],1'b1,n[5],c[2],sum[3],q[2]);
+  
+  FA FA5(d[0],q[2],n[1],q[2],sum[4],c[3]);
+  FA FA6(d[1],q[2],sum[0],c[3],sum[5],c[4]);
+  FA FA7(d[2],q[2],sum[1],c[4],sum[6],c[5]);
+  FA FA8(d[3],q[2],sum[2],c[5],sum[7],c[6]);
+  FA FA9(1'b0,q[2],sum[3],c[6],sum[8],q[1]);
+
+  FA FA10(d[0],q[1],n[0],q[1],r[0],c[7]);
+  FA FA11(d[1],q[1],sum[4],c[7],r[1],c[8]);  
+  FA FA12(d[2],q[1],sum[5],c[8],r[2],c[9]);
+  FA FA13(d[3],q[1],sum[6],c[9],r[3],c[10]);
+  FA FA14(1'b0,q[1],sum[7],c[10],dump[0],c[11]);
+  FA FA15(1'b0,q[1],sum[8],c[11],dump[1],q[0]);
+endmodule
+  
